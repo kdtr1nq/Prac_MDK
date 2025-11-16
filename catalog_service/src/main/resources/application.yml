@@ -1,3 +1,6 @@
+server:
+  port: 8082
+
 spring:
   application:
     name: catalog-service
@@ -5,7 +8,7 @@ spring:
     import: "optional:configserver:http://localhost:8888"
 
   datasource:
-    url: jdbc:postgresql://localhost:5432/catalog_db
+    url: jdbc:postgresql://localhost:5433/catalog_db
     username: catalog_user
     password: 123
     driver-class-name: org.postgresql.Driver
@@ -38,3 +41,7 @@ springdoc:
     path: /v3/api-docs
   swagger-ui:
     path: /swagger
+
+logging:
+  level:
+    root: INFO

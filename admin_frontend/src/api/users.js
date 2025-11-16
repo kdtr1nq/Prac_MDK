@@ -1,7 +1,7 @@
 import { http } from "./http";
 
 export function register({ email, password, fullName }) {
-  return http.post("/api/users", { email, password, fullName });
+  return http.post("/api/users/register", { email, password, fullName });
 }
 
 export async function login({ email, password }) {

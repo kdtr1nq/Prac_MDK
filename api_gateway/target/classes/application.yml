@@ -15,18 +15,21 @@ spring:
             - Path=/api/catalog/**
           filters:
             - StripPrefix=1
+            - CircuitBreaker=catalogCircuitBreaker
         - id: user
           uri: lb://user-service
           predicates:
             - Path=/api/users/**
           filters:
             - StripPrefix=1
+            - CircuitBreaker=userCircuitBreaker
         - id: order
           uri: lb://order-service
           predicates:
             - Path=/api/orders/**
           filters:
             - StripPrefix=1
+            - CircuitBreaker=orderCircuitBreaker
     discovery:
       locator:
         enabled: true
@@ -37,4 +40,26 @@ eureka:
       defaultZone: http://localhost:8761/eureka/
 
 management:
-  endpoints.web.exposure.include: health,info
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+
+logging:
+  level:
+    root: INFO
+
+resilience4j:
+  circuitbreaker:
+    configs:
+      default:
+        slidingWindowSize: 10
+        failureRateThreshold: 50
+        waitDurationInOpenState: 10s
+    instances:
+      catalogCircuitBreaker:
+        baseConfig: default
+      userCircuitBreaker:
+        baseConfig: default
+      orderCircuitBreaker:
+        baseConfig: default

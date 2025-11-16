@@ -13,7 +13,7 @@ public class RestExceptionHandler {
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public Map<String, Object> handleValidation(MethodArgumentNotValidException ex) {
-        var errors = ex.getBindingResult().getFieldErrors().stream().map(fe -> Map.of(
+        List<Map<String, String>> errors = ex.getBindingResult().getFieldErrors().stream().map(fe -> Map.of(
                 "field", fe.getField(),
                 "message", fe.getDefaultMessage()
         )).toList();
@@ -23,7 +23,7 @@ public class RestExceptionHandler {
     @ExceptionHandler(ResponseStatusException.class)
     public ResponseEntity<Map<String, Object>> handleRse(ResponseStatusException ex) {
         Map<String, Object> body = new HashMap<>();
-        body.put("error", ex.getReason() != null ? ex.getReason() : ex.getStatusCode().getReasonPhrase());
+        body.put("error", ex.getReason() != null ? ex.getReason() : ex.getStatusCode().toString());
         return ResponseEntity.status(ex.getStatusCode()).body(body);
     }
 }

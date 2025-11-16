@@ -1,44 +1,45 @@
 package com.food.user.security;
 
-import com.food.user.model.AppUser;
-import com.food.user.repository.UserRepository;
-import com.food.user.security.JwtUtil;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
-import org.springframework.http.HttpStatus;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.security.Keys;
+import org.springframework.stereotype.Component;
 
-@Service
-public class UserService {
-    private final UserRepository repo;
-    private final JwtUtil jwt;
-    private final BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+import javax.crypto.SecretKey;
+import java.util.Date;
 
-    public UserService(UserRepository repo, JwtUtil jwt){ this.repo = repo; this.jwt = jwt; }
+@Component
+public class JwtUtil {
+    private static final String SECRET = "mySecretKey123456789012345678901234567890"; // В продакшене использовать переменную окружения
+    private static final long EXPIRATION_TIME = 86400000; // 24 часа
+    private final SecretKey key = Keys.hmacShaKeyFor(SECRET.getBytes());
 
-    public AppUser register(String email, String fullName, String password) {
-        if (repo.findByEmail(email).isPresent())
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "Email already registered");
-        AppUser u = new AppUser();
-        u.setEmail(email);
-        u.setFullName(fullName);
-        u.setPasswordHash(encoder.encode(password));
-        u.setRole("USER");
-        return repo.save(u);
+    public String generate(String email, String role) {
+        Date now = new Date();
+        Date expiryDate = new Date(now.getTime() + EXPIRATION_TIME);
+
+        return Jwts.builder()
+                .subject(email)
+                .claim("role", role)
+                .issuedAt(now)
+                .expiration(expiryDate)
+                .signWith(key)
+                .compact();
     }
 
-    public String login(String email, String password) {
-        AppUser u = repo.findByEmail(email)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid credentials"));
-        if (!encoder.matches(password, u.getPasswordHash()))
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid credentials");
-        return jwt.generate(u.getEmail(), u.getRole());
+    public Claims parse(String token) {
+        return Jwts.parser()
+                .verifyWith(key)
+                .build()
+                .parseSignedClaims(token)
+                .getPayload();
     }
 
-    public void makeAdmin(Long id) {
-        AppUser u = repo.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
-        u.setRole("ADMIN");
-        repo.save(u);
+    public String getEmail(String token) {
+        return parse(token).getSubject();
+    }
+
+    public String getRole(String token) {
+        return parse(token).get("role", String.class);
     }
 }

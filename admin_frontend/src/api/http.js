@@ -1,4 +1,4 @@
-const BASE = import.meta.env.VITE_API_BASE || "http://localhost:8080";
+const BASE = import.meta.env.VITE_API_BASE || "http://localhost:8088";
 
 export function getToken(){ return localStorage.getItem("token") || ""; }
 

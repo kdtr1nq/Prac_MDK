@@ -1,6 +1,11 @@
+server:
+  port: 8081
+
 spring:
   application:
     name: user-service
+  config:
+    import: "optional:configserver:http://localhost:8888"
   datasource:
     url: jdbc:postgresql://localhost:5433/user_db
     username: user_user
@@ -9,8 +14,25 @@ spring:
   jpa:
     hibernate.ddl-auto: update
 
-eureka.client.service-url.defaultZone: http://localhost:8761/eureka
-management.endpoints.web.exposure.include: "*"
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka
+  instance:
+    prefer-ip-address: true
 
-springdoc.api-docs.path: /v3/api-docs
-springdoc.swagger-ui.path: /swagger
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger
+
+logging:
+  level:
+    root: INFO

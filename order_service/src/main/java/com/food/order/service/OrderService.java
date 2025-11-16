@@ -41,7 +41,7 @@ public class OrderService {
     }
 
     private OrderResponse toRes(Order o) {
-        var items = o.getItems().stream()
+        List<OrderResponse.Item> items = o.getItems().stream()
                 .map(i -> new OrderResponse.Item(i.getDishId(), i.getDishName(), i.getPrice(), i.getQuantity()))
                 .toList();
         return new OrderResponse(
