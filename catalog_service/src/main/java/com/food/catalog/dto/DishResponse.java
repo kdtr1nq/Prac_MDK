@@ -1,0 +1,7 @@
+package com.food.catalog.dto;
+
+import java.math.BigDecimal;
+
+public record DishResponse(
+        Long id, String name, BigDecimal price, String category
+) {}

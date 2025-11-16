@@ -1,0 +1,40 @@
+spring:
+  application:
+    name: catalog-service
+  config:
+    import: "optional:configserver:http://localhost:8888"
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/catalog_db
+    username: catalog_user
+    password: 123
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update        # создаст таблицы, если их нет; данные сохраняются между рестартами
+    properties:
+      hibernate:
+        format_sql: true
+        jdbc.lob.non_contextual_creation: true
+
+  sql:
+    init:
+      mode: never             # никаких авто-скриптов с данными
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger
